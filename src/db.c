@@ -31,7 +31,18 @@ void closeConnection(sqlite3 *conn) {
   fprintf(stderr, "Couldn't close connection.\n");
 }
 
-int _commit(sqlite3_stmt *stmt) {
+static sqlite3_stmt *_prepare(sqlite3 *conn, const char *sql) {
+  sqlite3_stmt *stmt;
+  int rc;
+  rc = sqlite3_prepare_v2(conn, sql, -1, &stmt, 0);
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(conn));
+    return NULL;
+  }
+  return stmt;
+}
+
+static int _commit(sqlite3_stmt *stmt) {
   int rc = sqlite3_step(stmt);
   if (rc != SQLITE_DONE) {
     fprintf(stderr, "Failed to step\n");
@@ -94,40 +105,32 @@ void initializeCoffeeDB(sqlite3 *conn) {
   free(buff);
 }
 
-int addMachine(sqlite3 *db, const char *name, const char *brand,
+int addMachine(sqlite3 *conn, const char *name, const char *brand,
                const char *model, const int supportsPreInfusion) {
   const char *sql = "INSERT INTO machines (name, brand, model, "
                     "supports_pre_infusion) VALUES (?, ?, ?, ?);";
-  sqlite3_stmt *stmt;
-  int rc;
-
-  rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
-  if (rc != SQLITE_OK) {
-    fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+  sqlite3_stmt *stmt = _prepare(conn, sql);
+  if (stmt == NULL) {
+    fprintf(stderr, "Failed to prepare stmt for %s\n", sql);
     return 1;
   }
-
   sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
   sqlite3_bind_text(stmt, 2, brand, -1, SQLITE_STATIC);
   sqlite3_bind_text(stmt, 3, model, -1, SQLITE_STATIC);
   sqlite3_bind_int(stmt, 4, (supportsPreInfusion <= 0) ? 0 : 1);
-  _commit(stmt);
+  int rc = _commit(stmt);
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to commit %s\n", sql);
+    return 1;
+  }
   return 0;
 }
 
-int addGrinder(sqlite3 *db, const char *name, const char *brand,
+int addGrinder(sqlite3 *conn, const char *name, const char *brand,
                const int automatic) {
   const char *sql =
       "INSERT INTO grinders (name, brand, automatic) VALUES (?, ?, ?);";
-  sqlite3_stmt *stmt;
-  int rc;
-
-  rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
-  if (rc != SQLITE_OK) {
-    fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
-    return 1;
-  }
-
+  sqlite3_stmt *stmt = _prepare(conn, sql);
   sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
   sqlite3_bind_text(stmt, 2, brand, -1, SQLITE_STATIC);
   sqlite3_bind_int(stmt, 3, (automatic <= 0) ? 0 : 1);
