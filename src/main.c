@@ -16,7 +16,6 @@ int main() {
     return 1;
   }
   initializeCoffeeDB(conn);
-  addMachine(conn, "name", "brand", "model", 0);
   closeConnection(conn);
   return 0;
 }
