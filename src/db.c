@@ -131,9 +131,17 @@ int addGrinder(sqlite3 *conn, const char *name, const char *brand,
   const char *sql =
       "INSERT INTO grinders (name, brand, automatic) VALUES (?, ?, ?);";
   sqlite3_stmt *stmt = _prepare(conn, sql);
+  if (stmt == NULL) {
+    fprintf(stderr, "Failed to prepare stmt for %s\n", sql);
+    return 1;
+  }
   sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
   sqlite3_bind_text(stmt, 2, brand, -1, SQLITE_STATIC);
   sqlite3_bind_int(stmt, 3, (automatic <= 0) ? 0 : 1);
-  _commit(stmt);
+  int rc = _commit(stmt);
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to commit %s\n", sql);
+    return 1;
+  }
   return 0;
 }
