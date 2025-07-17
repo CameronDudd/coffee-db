@@ -1,3 +1,8 @@
+/*
+ *   Copyright (c) 2024 Cameron Dudd
+ *   All rights reserved.
+ */
+
 #ifndef DB_H
 #define DB_H
 

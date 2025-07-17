@@ -1,3 +1,8 @@
+/*
+ *   Copyright (c) 2024 Cameron Dudd
+ *   All rights reserved.
+ */
+
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
