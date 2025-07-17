@@ -17,6 +17,8 @@ void closeConnection(sqlite3 *conn);
 void initializeCoffeeDB(sqlite3 *conn);
 
 int addMachine(sqlite3 *db, const char *name, const char *brand,
-               const char *model, int supportsPreInfusion);
+               const char *model, const int supportsPreInfusion);
+int addGrinder(sqlite3 *db, const char *name, const char *brand,
+               const int automatic);
 
 #endif // DB_H

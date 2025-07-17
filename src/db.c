@@ -95,7 +95,7 @@ void initializeCoffeeDB(sqlite3 *conn) {
 }
 
 int addMachine(sqlite3 *db, const char *name, const char *brand,
-               const char *model, int supportsPreInfusion) {
+               const char *model, const int supportsPreInfusion) {
   const char *sql = "INSERT INTO machines (name, brand, model, "
                     "supports_pre_infusion) VALUES (?, ?, ?, ?);";
   sqlite3_stmt *stmt;
@@ -111,8 +111,26 @@ int addMachine(sqlite3 *db, const char *name, const char *brand,
   sqlite3_bind_text(stmt, 2, brand, -1, SQLITE_STATIC);
   sqlite3_bind_text(stmt, 3, model, -1, SQLITE_STATIC);
   sqlite3_bind_int(stmt, 4, (supportsPreInfusion <= 0) ? 0 : 1);
-
   _commit(stmt);
+  return 0;
+}
 
+int addGrinder(sqlite3 *db, const char *name, const char *brand,
+               const int automatic) {
+  const char *sql =
+      "INSERT INTO grinders (name, brand, automatic) VALUES (?, ?, ?);";
+  sqlite3_stmt *stmt;
+  int rc;
+
+  rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+    return 1;
+  }
+
+  sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
+  sqlite3_bind_text(stmt, 2, brand, -1, SQLITE_STATIC);
+  sqlite3_bind_int(stmt, 3, (automatic <= 0) ? 0 : 1);
+  _commit(stmt);
   return 0;
 }
