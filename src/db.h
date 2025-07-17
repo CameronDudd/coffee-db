@@ -20,5 +20,7 @@ int addMachine(sqlite3 *conn, const char *name, const char *brand,
                const char *model, const int supportsPreInfusion);
 int addGrinder(sqlite3 *conn, const char *name, const char *brand,
                const int automatic);
+int addGrinderSetting(sqlite3 *conn, const int grinderId,
+                      const char *grinderConfig);
 
 #endif // DB_H

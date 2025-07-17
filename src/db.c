@@ -145,3 +145,22 @@ int addGrinder(sqlite3 *conn, const char *name, const char *brand,
   }
   return 0;
 }
+
+int addGrinderSetting(sqlite3 *conn, const int grinderId,
+                      const char *grinderConfig) {
+  const char *sql = "INSERT INTO grinder_settings (grinder_id, grinder_config) "
+                    "VALUES (?, ?);";
+  sqlite3_stmt *stmt = _prepare(conn, sql);
+  if (stmt == NULL) {
+    fprintf(stderr, "Failed to prepare stmt for %s\n", sql);
+    return 1;
+  }
+  sqlite3_bind_int(stmt, 1, grinderId);
+  sqlite3_bind_text(stmt, 2, grinderConfig, -1, SQLITE_STATIC);
+  int rc = _commit(stmt);
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to commit %s\n", sql);
+    return 1;
+  }
+  return 0;
+}
