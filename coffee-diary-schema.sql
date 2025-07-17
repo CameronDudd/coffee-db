@@ -1,3 +1,8 @@
+/*
+ *   Copyright (c) 2024 Cameron Dudd
+ *   All rights reserved.
+ */
+
 PRAGMA foreign_keys = ON;
 PRAGMA synchronous = NORMAL;
 PRAGMA cache_size = 10000;
