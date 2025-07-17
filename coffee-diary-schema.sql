@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS machines (
     name TEXT NOT NULL,
     brand TEXT NOT NULL,
     model TEXT NOT NULL,
-    boiler_type TEXT NOT NULL,
     supports_pre_infusion INTEGER NOT NULL CHECK (supports_pre_infusion IN (0, 1))
 );
 
@@ -48,6 +47,13 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL,
     name TEXT,
     email TEXT
+);
+
+CREATE TABLE IF NOT EXISTS locations (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    lat FLOAT,
+    lon FLOAT
 );
 
 CREATE TABLE IF NOT EXISTS brew_sessions (
