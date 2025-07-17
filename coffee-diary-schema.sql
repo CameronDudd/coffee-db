@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS grinders (
     automatic INTEGER NOT NULL CHECK (automatic IN (0, 1))
 );
 
-CREATE TABLE IF NOT EXISTS grind_settings (
+CREATE TABLE IF NOT EXISTS grinder_settings (
     id INTEGER PRIMARY KEY,
     grinder_id INTEGER NOT NULL,
     grinder_config TEXT CHECK (json_valid(grinder_config)),
