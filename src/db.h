@@ -9,7 +9,7 @@
 #include <sqlite3.h>
 
 #define DB_NAME "coffee-diary.db"
-#define SCHEMA_NAME "coffee-diary-schema.sql"
+#define SCHEMA_NAME "coffee-db.sql"
 
 sqlite3 *getCoffeeDBConnection();
 void closeConnection(sqlite3 *conn);
