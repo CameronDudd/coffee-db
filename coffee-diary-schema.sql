@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS brewing_methods (
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
-    password TEXT NOT NULL,
+    password TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS vendors (
