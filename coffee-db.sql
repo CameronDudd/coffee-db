@@ -52,7 +52,6 @@ CREATE TABLE IF NOT EXISTS vendors (
 CREATE TABLE IF NOT EXISTS beans (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    roaster TEXT,
     origin TEXT,
     vendor_id INTEGER,
     roast_time INTEGER CHECK (roast_time >= 0),  -- Unix time seconds
@@ -88,7 +87,7 @@ CREATE TABLE IF NOT EXISTS brew_sessions (
     dose_grams FLOAT,
     yield_grams FLOAT,
     pressure_bar FLOAT,
-    brew_time INTEGER CHECK (brew_time IS NULL OR brew_time >= 0),
+    brew_time INTEGER CHECK (brew_time >= 0),
     rating INTEGER NOT NULL CHECK (rating BETWEEN 0 AND 10),
     date INTEGER NOT NULL CHECK (date >= 0),  -- Unix time seconds
     bean_id INTEGER,
