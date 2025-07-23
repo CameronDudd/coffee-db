@@ -1,5 +1,12 @@
+# dirs
 /out
 /.scrape
 /.idea
 /.cache
+
+# db
+coffee-diary
 coffee-diary.db
+
+# compilation
+compile_commands.json
