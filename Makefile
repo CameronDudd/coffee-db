@@ -1,10 +1,10 @@
 C =gcc 
-CFLAGS = -Wall -Wextra -g -std=c99
+CFLAGS = -Wall -Wextra -g -std=c99 -Ilib
 LIBS = -lsqlite3
 
 SRC = $(wildcard src/*.c)
 OBJ = $(patsubst src/%.c, out/%.o, $(SRC))
-TARGET = coffee_diary
+TARGET = coffee-diary
 
 all: $(TARGET)
 
