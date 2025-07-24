@@ -1,3 +1,0 @@
-[submodule "lib/tuibox"]
-	path = lib/tuibox
-	url = git@github.com:Cubified/tuibox.git
