@@ -104,10 +104,11 @@ void initializeCoffeeDB(sqlite3 *conn) {
 }
 
 // START SELECT
+// TODO (cameron): INNER JOIN foreign keys
 int getBrewSessions(sqlite3 *conn, int (*callback)(void *, int, char **, char **)) {
   const char *sql =
-      "SELECT (id, dose_grams, yield_grams, pressure_bar, brew_time, rating, date, bean_id, grind_setting_id, brewing_method_id, user_id, machine_id, "
-      "cafe_location_id, notes) FROM brew_sessions;";
+      "SELECT id, dose_grams, yield_grams, pressure_bar, brew_time, rating, date, bean_id, grind_setting_id, brewing_method_id, user_id, machine_id, "
+      "cafe_location_id, notes FROM brew_sessions;";
   char *errMsg = NULL;
   int rc       = sqlite3_exec(conn, sql, callback, NULL, &errMsg);
   if (rc != SQLITE_OK) {
