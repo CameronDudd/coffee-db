@@ -3,19 +3,13 @@
  *   All rights reserved.
  */
 
-#include <sqlite3.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <locale.h>
+#include <ncurses.h>
 
-#include "db.h"
+#include "tui.h"
 
 int main() {
-  sqlite3 *conn = getCoffeeDBConnection();
-  if (conn == NULL) {
-    fprintf(stderr, "Failed to get coffee database connection.");
-    return 1;
-  }
-  initializeCoffeeDB(conn);
-  closeConnection(conn);
+  setlocale(LC_ALL, "");
+  tuiMain();
   return 0;
 }

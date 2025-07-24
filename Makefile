@@ -1,6 +1,6 @@
 C =gcc 
-CFLAGS = -Wall -Wextra -g -std=c99 -Ilib
-LIBS = -lsqlite3
+CFLAGS = -Wall -Wextra -g -std=c99 -Iinclude -Ilib
+LIBS = -lsqlite3 -lncurses
 
 SRC = $(wildcard src/*.c)
 OBJ = $(patsubst src/%.c, out/%.o, $(SRC))
