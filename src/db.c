@@ -84,7 +84,7 @@ void initializeCoffeeDB(sqlite3 *conn) {
     return;
   }
 
-  size_t readSize = fread(buff, sizeof(char), statbuf.st_size, fp);
+  long readSize = fread(buff, sizeof(char), statbuf.st_size, fp);
   fclose(fp);
   if (readSize != statbuf.st_size) {
     fprintf(stderr, "Failed to read entire schema file.\n");
