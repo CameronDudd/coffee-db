@@ -17,8 +17,7 @@ sqlite3 *getCoffeeDBConnection() {
     fprintf(stdout, "Opened coffee database connection successfully.\n");
     return conn;
   }
-  fprintf(stderr, "Couldn't open coffee database connection: %s\n",
-          sqlite3_errmsg(conn));
+  fprintf(stderr, "Couldn't open coffee database connection: %s\n", sqlite3_errmsg(conn));
   return NULL;
 }
 
@@ -59,7 +58,6 @@ static int _commit(sqlite3_stmt *stmt) {
 }
 
 void initializeCoffeeDB(sqlite3 *conn) {
-
   struct stat statbuf;
   int rc;
 
@@ -80,7 +78,7 @@ void initializeCoffeeDB(sqlite3 *conn) {
   fprintf(stdout, "Opened schema file successfully.\n");
 
   size_t fileSize = sizeof(char) * statbuf.st_size;
-  char *buff = malloc(fileSize + 1);
+  char *buff      = malloc(fileSize + 1);
   if (buff == NULL) {
     fclose(fp);
     return;
@@ -96,7 +94,7 @@ void initializeCoffeeDB(sqlite3 *conn) {
   buff[fileSize] = '\0';
 
   char *errMsg = NULL;
-  rc = sqlite3_exec(conn, buff, 0, 0, &errMsg);
+  rc           = sqlite3_exec(conn, buff, 0, 0, &errMsg);
   if (rc != SQLITE_OK) {
     fprintf(stderr, "%s\n", errMsg);
     sqlite3_free(errMsg);
@@ -105,10 +103,10 @@ void initializeCoffeeDB(sqlite3 *conn) {
   free(buff);
 }
 
-int addMachine(sqlite3 *conn, const char *name, const char *brand,
-               const char *model, const int supportsPreInfusion) {
-  const char *sql = "INSERT INTO machines (name, brand, model, "
-                    "supports_pre_infusion) VALUES (?, ?, ?, ?);";
+int addMachine(sqlite3 *conn, const char *name, const char *brand, const char *model, const int supportsPreInfusion) {
+  const char *sql =
+      "INSERT INTO machines (name, brand, model, "
+      "supports_pre_infusion) VALUES (?, ?, ?, ?);";
   sqlite3_stmt *stmt = _prepare(conn, sql);
   if (stmt == NULL) {
     fprintf(stderr, "Failed to prepare stmt for %s\n", sql);
@@ -126,10 +124,8 @@ int addMachine(sqlite3 *conn, const char *name, const char *brand,
   return 0;
 }
 
-int addGrinder(sqlite3 *conn, const char *name, const char *brand,
-               const int automatic) {
-  const char *sql =
-      "INSERT INTO grinders (name, brand, automatic) VALUES (?, ?, ?);";
+int addGrinder(sqlite3 *conn, const char *name, const char *brand, const int automatic) {
+  const char *sql    = "INSERT INTO grinders (name, brand, automatic) VALUES (?, ?, ?);";
   sqlite3_stmt *stmt = _prepare(conn, sql);
   if (stmt == NULL) {
     fprintf(stderr, "Failed to prepare stmt for %s\n", sql);
@@ -146,10 +142,10 @@ int addGrinder(sqlite3 *conn, const char *name, const char *brand,
   return 0;
 }
 
-int addGrinderSetting(sqlite3 *conn, const int grinderId,
-                      const char *grinderConfig) {
-  const char *sql = "INSERT INTO grinder_settings (grinder_id, grinder_config) "
-                    "VALUES (?, ?);";
+int addGrinderSetting(sqlite3 *conn, const int grinderId, const char *grinderConfig) {
+  const char *sql =
+      "INSERT INTO grinder_settings (grinder_id, grinder_config) "
+      "VALUES (?, ?);";
   sqlite3_stmt *stmt = _prepare(conn, sql);
   if (stmt == NULL) {
     fprintf(stderr, "Failed to prepare stmt for %s\n", sql);
