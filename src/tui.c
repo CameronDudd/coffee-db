@@ -61,7 +61,7 @@ void _tuiLoop() {
   while ((ch = wgetch(menuW)) != 'q') {
     switch (ch) {
       case MENU_LEFT:
-        menuHighlightIdx = (menuHighlightIdx == 0) ? numMenuItems - 1 : menuHighlightIdx - 1;
+        menuHighlightIdx = (menuHighlightIdx + numMenuItems - 1) % numMenuItems;
         break;
       case MENU_RIGHT:
         menuHighlightIdx = (menuHighlightIdx + 1) % numMenuItems;
