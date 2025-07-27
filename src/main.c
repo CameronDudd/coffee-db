@@ -3,13 +3,16 @@
  *   All rights reserved.
  */
 
-#include <locale.h>
-#include <ncurses.h>
+#include <signal.h>
 
+#include "db.h"
 #include "tui.h"
 
 int main() {
-  setlocale(LC_ALL, "");
-  tuiMain();
+  signal(SIGINT, tuiKill);
+
+  sqlite3 *conn = getCoffeeDBConnection();
+  tuiMain(conn);
+  closeConnection(conn);
   return 0;
 }

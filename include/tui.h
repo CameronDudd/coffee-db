@@ -6,6 +6,9 @@
 #ifndef TUI_H
 #define TUI_H
 
-void tuiMain();
+#include <sqlite3.h>
+
+void tuiKill(int sig);
+void tuiMain(sqlite3* conn);
 
 #endif  // TUI_H
