@@ -19,8 +19,11 @@ void closeConnection(sqlite3 *conn);
 
 void initializeCoffeeDB(sqlite3 *conn);
 
+int simpleQuery(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData, const char *sql);
+
 // START SELECT
 int getBrewSessions(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData);
+int getCafes(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData);
 // END SELECT
 
 // START INSERT

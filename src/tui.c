@@ -29,7 +29,7 @@
 
 volatile sig_atomic_t _alive = 1;
 static int _wroteHeader      = 0;
-const char *menu[]           = {"Brew Sessions", "Coffee", "Cafe"};
+const char *menu[]           = {"Brew Sessions", "Coffee", "Cafes"};
 
 int _drawDbContentCallback(void *buff, int argc, char **argv, char **azColName) {
   int numCols                         = MIN(MENU_MAX_COLS, argc);
@@ -94,6 +94,8 @@ void _drawContent(WINDOW *contentW, sqlite3 *conn, int menuHighlightIdx) {
   if (_menuIdxChange) {
     if (strcmp(menuItemName, "Brew Sessions") == 0) {
       getBrewSessions(conn, _drawDbContentCallback, buff);
+    } else if (strcmp(menuItemName, "Cafes") == 0) {
+      getCafes(conn, _drawDbContentCallback, buff);
     } else {
       werase(contentW);
     }

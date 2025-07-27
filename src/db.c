@@ -103,12 +103,7 @@ void initializeCoffeeDB(sqlite3 *conn) {
   free(buff);
 }
 
-// START SELECT
-// TODO (cameron): INNER JOIN foreign keys
-int getBrewSessions(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData) {
-  const char *sql =
-      "SELECT id, dose_grams, yield_grams, pressure_bar, brew_time, rating, date, bean_id, grind_setting_id, brewing_method_id, user_id, machine_id, "
-      "cafe_location_id, notes FROM brew_sessions;";
+int simpleQuery(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData, const char *sql) {
   char *errMsg = NULL;
   int rc       = sqlite3_exec(conn, sql, callback, callbackData, &errMsg);
   if (rc != SQLITE_OK) {
@@ -117,6 +112,20 @@ int getBrewSessions(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData)
     return 1;
   }
   return 0;
+}
+
+// START SELECT
+// TODO (cameron): INNER JOIN foreign keys
+int getBrewSessions(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData) {
+  const char *sql =
+      "SELECT id, dose_grams, yield_grams, pressure_bar, brew_time, rating, date, bean_id, grind_setting_id, brewing_method_id, user_id, machine_id, "
+      "cafe_location_id, notes FROM brew_sessions;";
+  return simpleQuery(conn, callback, callbackData, sql);
+}
+
+int getCafes(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData) {
+  const char *sql = "SELECT c.name, cl.lat, cl.lon FROM cafes c INNER JOIN cafe_locations cl ON c.id = cl.cafe_id;";
+  return simpleQuery(conn, callback, callbackData, sql);
 }
 // END SELECT
 
