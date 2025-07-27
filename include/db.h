@@ -11,13 +11,16 @@
 #define DB_NAME     "coffee-diary.db"
 #define SCHEMA_NAME "coffee-db.sql"
 
+typedef int (*dbCallbackFuncT)(void *callbackData, int argc, char **argv, char **azColName);
+typedef int (*dbFuncT)(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData);
+
 sqlite3 *getCoffeeDBConnection();
 void closeConnection(sqlite3 *conn);
 
 void initializeCoffeeDB(sqlite3 *conn);
 
 // START SELECT
-int getBrewSessions(sqlite3 *conn, int (*)(void *, int, char **, char **));
+int getBrewSessions(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData);
 // END SELECT
 
 // START INSERT
