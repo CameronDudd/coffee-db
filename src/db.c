@@ -118,7 +118,7 @@ int simpleQuery(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData, con
 // TODO (cameron): INNER JOIN foreign keys
 int getBrewSessions(sqlite3 *conn, dbCallbackFuncT callback, void *callbackData) {
   const char *sql =
-      "SELECT id, dose_grams, yield_grams, pressure_bar, brew_time, rating, date, bean_id, grind_setting_id, brewing_method_id, user_id, machine_id, "
+      "SELECT dose_grams, yield_grams, brew_time, rating, date, "
       "cafe_location_id, notes FROM brew_sessions;";
   return simpleQuery(conn, callback, callbackData, sql);
 }
