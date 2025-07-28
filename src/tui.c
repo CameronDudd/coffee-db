@@ -9,14 +9,14 @@
 #include <ncurses.h>
 #include <sqlite3.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "db.h"
 
-#define MENU_HEIGHT    3
-#define MENU_COL_WIDTH 20
-#define MENU_MAX_COLS  20
-#define ENDL           "|\n "
+#define MENU_HEIGHT        3
+#define MENU_MAX_COL_WIDTH 10
+#define MENU_MAX_COLS      20
 
 // CONTROLS
 #define MENU_LEFT    'h'
@@ -26,39 +26,42 @@
 #define MENU_REFRESH 'r'
 
 #define MIN(A, B) ((A < B) ? A : B)
+#define MAX(A, B) ((A > B) ? A : B)
+
+typedef struct {
+  char ***rows;
+  int maxRows;
+  int maxCols;
+  int currentRow;
+  int argc;
+} QueryResult;
 
 volatile sig_atomic_t _alive = 1;
-static int _wroteHeader      = 0;
-const char *menu[]           = {"Brew Sessions", "Coffee", "Cafes"};
+const char *menu[]           = {"Brew Sessions", "Cafes"};
 
-int _drawDbContentCallback(void *buff, int argc, char **argv, char **azColName) {
-  int numCols                         = MIN(MENU_MAX_COLS, argc);
-  static int colStrLen[MENU_MAX_COLS] = {0};
+int _drawDbContentCallback(void *data, int argc, char **argv, char **azColName) {
+  int numCols         = MIN(MENU_MAX_COLS, argc);
+  QueryResult *result = (QueryResult *)data;
 
-  char *outputBuff = (char *)buff;
+  if (result->currentRow >= result->maxRows) {
+    return 0;
+  }
 
-  if (!_wroteHeader) {
+  if (result->currentRow == 0) {
     for (int i = 0; i < numCols; ++i) {
-      int colWidth                 = MIN(MENU_COL_WIDTH, (int)strlen(azColName[i]) + 1);  // FIXME(cameron): support data > column name instead of +1 for `date`
-      char colBuff[MENU_COL_WIDTH] = {'\0'};
-      snprintf(colBuff, sizeof(colBuff), "| %-*s ", colWidth, azColName[i]);
-      strcat(outputBuff, colBuff);
-      colStrLen[i] = colWidth;
+      strcat(result->rows[0][i], azColName[i]);
     }
-    strcat(outputBuff, ENDL);
-    _wroteHeader = 1;
+    (result->currentRow)++;
+    result->argc = argc;
   }
 
   for (int i = 0; i < numCols; ++i) {
-    char colBuff[20] = {'\0'};
     if (argv[i]) {
-      snprintf(colBuff, sizeof(colBuff), "| %-*s ", colStrLen[i], argv[i]);
+      strcat(result->rows[result->currentRow][i], argv[i]);
     } else {
-      snprintf(colBuff, sizeof(colBuff), "| %-*s ", colStrLen[i], "NULL");
+      strcat(result->rows[result->currentRow][i], "NULL");
     }
-    strcat(outputBuff, colBuff);
   }
-  strcat(outputBuff, ENDL);
 
   return 0;
 }
@@ -81,28 +84,72 @@ void _drawMenu(WINDOW *menuW, int menuHighlightIdx, int numMenuItems) {
 
 void _drawContent(WINDOW *contentW, sqlite3 *conn, int menuHighlightIdx) {
   static int lastMenuHighlightIdx = -1;
-  char buff[1024];
-  memset(buff, '\0', 1024);
+  if (menuHighlightIdx != lastMenuHighlightIdx) {
+    werase(contentW);  // clear content window
 
-  int _menuIdxChange = (menuHighlightIdx == lastMenuHighlightIdx) ? 0 : 1;
-  if (_menuIdxChange) {
-    _wroteHeader         = 0;
-    lastMenuHighlightIdx = menuHighlightIdx;
-  }
+    int maxRows = LINES - MENU_HEIGHT - 2;
+    int maxCols = COLS - 2;
 
-  const char *menuItemName = menu[menuHighlightIdx];
-  if (_menuIdxChange) {
-    if (strcmp(menuItemName, "Brew Sessions") == 0) {
-      getBrewSessions(conn, _drawDbContentCallback, buff);
-    } else if (strcmp(menuItemName, "Cafes") == 0) {
-      getCafes(conn, _drawDbContentCallback, buff);
-    } else {
-      werase(contentW);
+    // allocate memory for each window row
+    char ***rows = malloc(maxRows * sizeof(char **));
+    for (int i = 0; i < maxRows; ++i) {
+      rows[i] = malloc(maxCols * sizeof(char *));
+      for (int j = 0; j < maxCols; ++j) {
+        rows[i][j] = calloc(MENU_MAX_COL_WIDTH, sizeof(char));
+      }
     }
+
+    // create result object
+    QueryResult result = {
+        .rows       = rows,
+        .maxRows    = maxRows,
+        .maxCols    = maxCols,
+        .currentRow = 0,
+        .argc       = 0,
+    };
+
+    // get data from the database (sequential)
+    const char *menuItemName = menu[menuHighlightIdx];
+    if (strcmp(menuItemName, "Brew Sessions") == 0) {
+      getBrewSessions(conn, _drawDbContentCallback, &result);
+    } else if (strcmp(menuItemName, "Cafes") == 0) {
+      getCafes(conn, _drawDbContentCallback, &result);
+    }
+
+    // iterate over results to find out the largest column width for each column
+    int maxWidthLookup[MENU_MAX_COLS] = {0ul};
+    for (int i = 0; i <= result.currentRow; ++i) {
+      for (int j = 0; j < result.argc; ++j) {
+        int cellLen       = strlen(result.rows[i][j]);
+        maxWidthLookup[j] = MIN(MENU_MAX_COL_WIDTH, MAX(maxWidthLookup[j], cellLen));
+      }
+    }
+
+    // iterate over results to print each row
+    for (int i = 0; i <= result.currentRow; ++i) {
+      char rowBuff[1024] = {'\0'};
+      for (int j = 0; j <= result.argc; ++j) {
+        char colBuff[MENU_MAX_COL_WIDTH * MENU_MAX_COLS] = {'\0'};
+        snprintf(colBuff, maxWidthLookup[j] + 4, "| %-*s ", maxWidthLookup[j], result.rows[i][j]);
+        strcat(rowBuff, colBuff);
+      }
+      mvwprintw(contentW, i + 1, 1, "%s", rowBuff);
+    }
+
+    box(contentW, 0, 0);  // artistic border box
+
+    // free allocated memory
+    for (int i = 0; i < maxRows; ++i) {
+      for (int j = 0; j < maxCols; ++j) {
+        free(rows[i][j]);
+      }
+      free(rows[i]);
+    }
+    free(rows);
+
+    lastMenuHighlightIdx = menuHighlightIdx;  // update menu idx
+    wrefresh(contentW);                       // trigger refresh
   }
-  mvwprintw(contentW, 1, 1, "%s", buff);
-  box(contentW, 0, 0);
-  wrefresh(contentW);
 }
 
 void _tuiInit() {
